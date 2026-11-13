@@ -64,18 +64,30 @@ function solvePositions(parts){
 }
 // Wider open arm holder. Items retain the same free rigid-body physics.
 // Only the kinematic holder follows input directly, without acceleration or coasting.
-const HOLDER=Object.freeze({y:-1.38,width:1.30,thickness:.17,sideX:.70,sideY:-.26,sideHeight:.60,sideWidth:.105,sideAngle:.14});
+const HOLDER=Object.freeze({y:-1.38,width:1.30,thickness:.17,sideX:.70,sideY:-.36,sideHeight:.80,sideWidth:.105,sideAngle:.14});
 function holderSide(side){return{id:side<0?'holder-left':'holder-right',x:side*HOLDER.sideX,y:HOLDER.y+HOLDER.sideY,angle:side*HOLDER.sideAngle,shape:makeShape({kind:'box',w:HOLDER.sideWidth,h:HOLDER.sideHeight}),w:HOLDER.sideWidth,h:HOLDER.sideHeight,static:true,isHolder:true,invMass:0,invInertia:0,vx:0,vy:0,omega:0,r:Math.hypot(HOLDER.sideWidth,HOLDER.sideHeight)/2,friction:1.35,side}}
-class Physics{constructor(){this.items=[];this.bombs=[];this.bombId=0;this.onExplosion=null;this.platform={id:'platform',x:0,y:HOLDER.y,angle:0,shape:makeShape({kind:'box',w:HOLDER.width,h:HOLDER.thickness}),w:HOLDER.width,h:HOLDER.thickness,static:true,isHolder:true,invMass:0,invInertia:0,vx:0,vy:0,omega:0,r:Math.hypot(HOLDER.width,HOLDER.thickness)/2,friction:1.35};this.holderParts=[this.platform,holderSide(-1),holderSide(1)];this.holderContacts=new Set();this.holderLastImpact=new Map();this.onHolderImpact=null;this.time=0;this.hitPower=0;this.floorHit=null;this.stepContacts=[];this.onImpact=null;this.targetX=0;this.lastCollisionTime=0}
- clear(){this.items=[];this.bombs=[];this.bombId=0;this.time=0;this.platform.x=0;this.platform.vx=0;this.targetX=0;this.hitPower=0;this.floorHit=null;this.lastCollisionTime=0;this.holderContacts.clear();this.holderLastImpact.clear();this.syncHolder()}
- syncHolder(){for(const part of this.holderParts){if(part===this.platform)continue;part.x=this.platform.x+part.side*HOLDER.sideX;part.y=this.platform.y+HOLDER.sideY;part.vx=this.platform.vx;part.vy=this.platform.vy}}
+class Physics{constructor(){this.items=[];this.bombs=[];this.bombId=0;this.onExplosion=null;this.platform={id:'platform',x:0,y:HOLDER.y,angle:0,shape:makeShape({kind:'box',w:HOLDER.width,h:HOLDER.thickness}),w:HOLDER.width,h:HOLDER.thickness,static:true,isHolder:true,invMass:0,invInertia:0,vx:0,vy:0,omega:0,r:Math.hypot(HOLDER.width,HOLDER.thickness)/2,friction:1.35};this.holderScale=1;this.groundY=0;this.movementLimit=2.04;this.holderParts=[this.platform,holderSide(-1),holderSide(1)];this.holderContacts=new Set();this.holderLastImpact=new Map();this.onHolderImpact=null;this.time=0;this.hitPower=0;this.floorHit=null;this.stepContacts=[];this.onImpact=null;this.targetX=0;this.lastCollisionTime=0}
+ clear(){this.items=[];this.bombs=[];this.bombId=0;this.time=0;this.platform.x=0;this.platform.vx=0;this.targetX=0;this.hitPower=0;this.floorHit=null;this.lastCollisionTime=0;this.holderContacts.clear();this.holderLastImpact.clear();this.setViewScale(1,0);this.syncHolder()}
+ // Convert the fixed on-screen holder into the goods camera's world units.
+ // The upper surface stays at its world height, so zoom never lifts the load.
+ setViewScale(scale,groundY){
+  this.holderScale=scale;this.groundY=groundY;this.movementLimit=2.04;
+  const p=this.platform;p.y=HOLDER.y+HOLDER.thickness*.5*(scale-1);
+  for(const part of this.holderParts){
+   part.w=(part===p?HOLDER.width:HOLDER.sideWidth)*scale;
+   part.h=(part===p?HOLDER.thickness:HOLDER.sideHeight)*scale;
+   part.shape=makeShape({kind:'box',w:part.w,h:part.h});part.r=Math.hypot(part.w,part.h)/2;
+  }
+  this.syncHolder();
+ }
+ syncHolder(){for(const part of this.holderParts){if(part===this.platform)continue;part.x=this.platform.x+part.side*HOLDER.sideX*this.holderScale;part.y=this.platform.y+HOLDER.sideY*this.holderScale;part.vx=this.platform.vx;part.vy=this.platform.vy}}
  spawn(spec,x,y,mass){let b=body(spec,x,y,mass,'i'+this.items.length);this.items.push(b);return b}
- getTop(){let top=this.platform.y-.1;for(const b of this.items){const verts=polygonWorld(b);for(const p of verts)top=Math.min(top,p.y)}return top}
+ getTop(){let top=this.platform.y-.1*this.holderScale;for(const b of this.items){const verts=polygonWorld(b);for(const p of verts)top=Math.min(top,p.y)}return top}
  spawnBomb(x,y){const b=body({kind:'circle',w:.24,h:.24,tag:'BOMB'},x,y,1.2,'bomb'+this.bombId++);b.isBomb=true;b.fuseAt=null;this.bombs.push(b);return b}
  armBomb(b){if(b.fuseAt===null)b.fuseAt=this.time+1}
  explode(b){
   // Blast reach is one holder width from the bomb center.
-  const radius=HOLDER.width;
+  const radius=this.platform.w;
   for(const item of this.items){
    const d=sub(item,b),distance=Math.hypot(d.x,d.y);if(distance>radius+item.r)continue;
    const falloff=Math.max(.15,1-distance/(radius+item.r));
@@ -89,7 +101,7 @@ class Physics{constructor(){this.items=[];this.bombs=[];this.bombId=0;this.onExp
   if(this.onExplosion)this.onExplosion({x:b.x,y:b.y,radius});
  }
  update(){
-  const p=this.platform,start=p.x,end=clamp(this.targetX,-2.04,2.04),h=DT/SUBSTEPS;
+  const p=this.platform,start=p.x,end=clamp(this.targetX,-this.movementLimit,this.movementLimit),h=DT/SUBSTEPS;
   this.hitPower=0;this.stepContacts=[];
   for(const item of this.items){item.supported=false;item.supportCount=0}
   const seen=new Set();
@@ -100,8 +112,8 @@ class Physics{constructor(){this.items=[];this.bombs=[];this.bombId=0;this.onExp
     b.x+=b.vx*h;b.y+=b.vy*h;b.angle+=b.omega*h;
     if(!Number.isFinite(b.x+b.y+b.angle+b.vx+b.vy+b.omega)||Math.abs(b.x)>1e4||Math.abs(b.y)>1e4){if(b.isBomb){b.fuseAt=this.time;continue}this.floorHit={id:b.id,reason:'invalid'};return}
     const bottom=Math.max(...polygonWorld(b).map(v=>v.y));
-    if(bottom>=-.005){
-     if(b.isBomb){b.y-=bottom+.006;b.vy=0;b.vx*=.9;b.omega*=.8;this.armBomb(b)}
+    if(bottom>=this.groundY-.005){
+     if(b.isBomb){b.y-=bottom-this.groundY+.006;b.vy=0;b.vx*=.9;b.omega*=.8;this.armBomb(b)}
      else this.floorHit=this.floorHit||{id:b.id,reason:'ground'};
     }
    }
