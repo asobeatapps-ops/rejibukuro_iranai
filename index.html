@@ -4,7 +4,7 @@
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"/>
 <meta name="theme-color" content="#163b41"/><meta name="description" content="レジ袋いりません。スーパーの品物を両手で積み上げる物理アクションゲーム。"/>
 <title>レジ袋いりません。｜ASOBEAT</title>
-<link rel="stylesheet" href="css/style.css?v=play-fix-2"/>
+<link rel="stylesheet" href="css/style.css?v=stack-bomb-3"/>
 </head>
 <body>
 <div id="app">
@@ -15,6 +15,7 @@
   </header>
   <canvas id="game" aria-label="商品を左右に移動して受け止めるゲーム"></canvas>
   <div id="introSpeech" class="speech hidden" aria-live="polite"><span id="speakerName"></span><span id="speechText"></span></div>
+  <div id="bombWarning" class="bomb-warning hidden" role="status">💣 爆弾注意</div>
   <div id="tip" class="tip hidden">← 指を左右にスライド →</div>
   <div id="banner" class="banner hidden" aria-live="polite"></div>
   <section id="titleScreen" class="screen title-screen" aria-label="タイトル">
@@ -35,19 +36,28 @@
     <div id="newBest" class="new-best hidden">★ NEW PERSONAL BEST ★</div>
     <div class="result-ribbon"><span id="resultTitle">レジ袋、ください</span></div>
     <div class="result-info"><span>BEST <strong id="resultBest">0</strong></span><span>PLAYER <strong id="resultPlayer">ゲスト</strong></span></div>
-    <div class="ranking" id="ranking"><div class="ranking-heading">LOCAL TOP 10</div><div id="rankingRows"></div></div>
+    <div class="ranking" id="ranking"><div class="ranking-heading">LOCAL BEST</div><div id="rankingRows"></div></div>
+    <div class="ranking online-ranking" aria-labelledby="onlineHeading">
+      <div id="onlineHeading" class="ranking-heading">WORLD RANKING</div>
+      <p class="ranking-note">名前と記録を公開して、ほかのプレイヤーと競えます。<br/><a href="privacy.html" target="_blank" rel="noopener">データの取り扱い</a></p>
+      <button id="submitRanking" type="button" class="secondary-button">この記録をランキング登録</button>
+      <button id="refreshRanking" type="button" class="text-button">ランキングを更新</button>
+      <p id="rankingStatus" role="status" aria-live="polite"></p><div id="onlineRows"></div>
+    </div>
     <div class="result-actions"><button id="retryBtn" class="primary-button" type="button">もう一度、断る <span>↻</span></button><button id="homeBtn" class="secondary-button" type="button">タイトルへ</button></div>
     <div class="ad-space" aria-label="広告掲載予定スペース"><span>ADVERTISEMENT</span><small>広告掲載準備中</small></div>
   </section>
   <div id="nameModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="nameHeading"><div class="modal-inner"><h2 id="nameHeading">プレイヤー名</h2><label for="playerName">ランキングに表示する名前</label><input id="playerName" maxlength="12" autocomplete="nickname" placeholder="ゲスト"/><div class="modal-actions"><button id="cancelName" type="button" class="secondary-button">戻る</button><button id="saveName" type="button" class="primary-button">保存</button></div></div></div>
 </div>
-<script src="js/storage.js" defer></script>
-<script src="js/audio.js?v=play-fix-2" defer></script>
-<script src="js/physics.js?v=play-fix-2" defer></script>
-<script src="js/effects.js?v=play-fix-2" defer></script>
-<script src="js/art.js?v=play-fix-2" defer></script>
-<script src="js/game.js?v=play-fix-2" defer></script>
-<script src="js/input.js?v=play-fix-2" defer></script>
-<script src="js/main.js?v=play-fix-2" defer></script>
+<script src="js/storage.js?v=stack-bomb-3" defer></script>
+<script src="js/audio.js?v=stack-bomb-3" defer></script>
+<script src="js/physics.js?v=stack-bomb-3" defer></script>
+<script src="js/effects.js?v=stack-bomb-3" defer></script>
+<script src="js/art.js?v=stack-bomb-3" defer></script>
+<script src="js/game.js?v=stack-bomb-3" defer></script>
+<script src="js/input.js?v=stack-bomb-3" defer></script>
+<script src="js/ranking-config.js?v=stack-bomb-3" defer></script>
+<script src="js/ranking.js?v=stack-bomb-3" defer></script>
+<script src="js/main.js?v=stack-bomb-3" defer></script>
 </body>
 </html>

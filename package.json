@@ -1,0 +1,13 @@
+{
+  "name": "asobeat-rejibukuro-iranai",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/physics.test.cjs tests/game.test.cjs tests/audio.test.cjs tests/storage.test.cjs tests/leaderboard.test.mjs tests/setup.test.cjs",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-bagless-ranking \"node tests/firestore.rules.test.cjs\""
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "6.0.0",
+    "firebase": "13.2.0",
+    "firebase-tools": "15.35.0"
+  }
+}

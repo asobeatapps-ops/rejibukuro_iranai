@@ -1,0 +1,11 @@
+(()=>{'use strict';
+let servicePromise,epoch=0,currentScore=0,currentName='ゲスト',pending=false;
+const el=id=>document.getElementById(id),status=text=>{el('rankingStatus').textContent=text};
+function service(){return servicePromise??=(async()=>{const{createLeaderboard}=await import('./leaderboard-service.mjs?v=stack-bomb-3');return createLeaderboard({config:window.BagRankingConfig||{},gameId:'bagless-bombs-v1',maxScore:10000})})().catch(e=>{servicePromise=null;throw e})}
+function rows(records){const root=el('onlineRows');root.replaceChildren();if(!records.length){const p=document.createElement('p');p.className='ranking-note';p.textContent='最初の記録を登録してみよう！';root.append(p);return}let rank=1;records.forEach((r,i)=>{if(i&&r.score!==records[i-1].score)rank=i+1;const row=document.createElement('div');row.className='rank-row'+(r.isMe?' is-me':'');const name=document.createElement('span'),score=document.createElement('b');name.textContent=`${rank}. ${r.name}${r.isMe?'（あなた）':''}`;score.textContent=`${r.score} 個`;row.append(name,score);root.append(row)})}
+function buttons(){el('submitRanking').disabled=pending;el('refreshRanking').disabled=pending}
+async function load(token){let s;try{s=await service();if(token!==epoch)return;if(!s.configured()){status(s.publicError({code:'ranking/unconfigured'}));el('submitRanking').disabled=true;return}status('ランキングを読み込み中…');const top=await s.loadTop();if(token===epoch){rows(top);status('上位100件・各プレイヤーのベスト記録を表示')}}catch(e){if(token===epoch)status(s?s.publicError(e):'通信できませんでした。「ランキングを更新」で再試行できます。')}}
+el('refreshRanking').addEventListener('click',()=>{if(!pending)load(epoch)});
+el('submitRanking').addEventListener('click',async()=>{if(pending)return;const token=epoch,score=currentScore,name=currentName;pending=true;buttons();let s;try{s=await service();status('記録を登録中…');const result=await s.submitBest(score,name);if(token!==epoch)return;status(`ベスト ${result.score} 個を登録しました`);const top=await s.loadTop();if(token===epoch)rows(top)}catch(e){if(token===epoch)status(s?s.publicError(e):'登録できませんでした。通信を確認して再試行してください。')}finally{pending=false;buttons()}});
+window.BagRanking={showResult(score,name){const token=++epoch;currentScore=score;currentName=name;buttons();el('onlineRows').replaceChildren();load(token)},cancelView(){epoch++}};
+})();
