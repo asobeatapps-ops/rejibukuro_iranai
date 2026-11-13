@@ -99,19 +99,18 @@ function drawPlayer(ctx,cam,x){
  path(ctx,[[-.23,-.77],[.19,-.77],[.17,-.035],[.045,-.035],[-.015,-.47],[-.055,-.035],[-.20,-.035]],denim,'#203348');
  line(ctx,[[-.15,-.63],[-.14,-.13]],'#8194a94a',.018);line(ctx,[[.09,-.61],[.11,-.13]],'#8194a94a',.018);
  round(ctx,-.26,-.075,.24,.085,.025,'#263a4a','#192f39');round(ctx,.025,-.075,.25,.085,.025,'#283b49','#192f39');line(ctx,[[-.24,-.025],[-.04,-.025]],'#bdd1cf',.014);line(ctx,[[.05,-.025],[.25,-.025]],'#bdd1cf',.014);
- // The shopper leans slightly beside the load: the basket is at chest height,
- // rather than a detached tray floating above a small character's head.
- const coat=gradient(ctx,-.31,-1.40,.27,-.69,[[0,'#efa879'],[.5,'#d88260'],[1,'#ae6557']]);
- ctx.beginPath();ctx.moveTo(-.17,-1.43);ctx.quadraticCurveTo(-.31,-1.42,-.32,-1.28);ctx.lineTo(-.27,-.73);ctx.quadraticCurveTo(-.01,-.66,.23,-.73);ctx.lineTo(.25,-1.29);ctx.quadraticCurveTo(.19,-1.41,-.04,-1.43);ctx.closePath();ctx.fillStyle=coat;ctx.fill();ctx.strokeStyle='#8d665e';ctx.stroke();
- path(ctx,[[-.18,-1.43],[-.015,-1.43],[.10,-.73],[-.14,-.73]],'#f2e6d0');line(ctx,[[-.20,-1.35],[-.23,-.93],[-.18,-.73]],'#bd7a64',.018);line(ctx,[[-.02,-1.35],[.12,-.97],[.13,-.74]],'#e8b391',.018);
- line(ctx,[[-.25,-.87],[-.14,-.88]],'#e8b391',.014);round(ctx,-.225,-1.51,.10,.13,.025,'#e6b595');face(ctx,-.22,-1.635,.72);
+ // Upright, centered shopper. The open holder rests below the face at chest height.
+ const coat=gradient(ctx,-.31,-1.94,.27,-.69,[[0,'#efa879'],[.5,'#d88260'],[1,'#ae6557']]);
+ ctx.beginPath();ctx.moveTo(-.13,-1.98);ctx.quadraticCurveTo(-.31,-1.95,-.32,-1.73);ctx.lineTo(-.27,-.73);ctx.quadraticCurveTo(-.01,-.66,.23,-.73);ctx.lineTo(.30,-1.73);ctx.quadraticCurveTo(.27,-1.95,.13,-1.98);ctx.closePath();ctx.fillStyle=coat;ctx.fill();ctx.strokeStyle='#8d665e';ctx.stroke();
+ path(ctx,[[-.12,-1.97],[.12,-1.97],[.14,-.73],[-.14,-.73]],'#f2e6d0');line(ctx,[[-.20,-1.35],[-.23,-.93],[-.18,-.73]],'#bd7a64',.018);line(ctx,[[-.02,-1.35],[.12,-.97],[.13,-.74]],'#e8b391',.018);
+ line(ctx,[[-.25,-.87],[-.14,-.88]],'#e8b391',.014);round(ctx,-.055,-2.08,.11,.16,.025,'#e6b595');face(ctx,0,-2.23,.80);
  // Raised forearms make the sides. The rolled shirt fold makes the bottom;
  // no plastic bag, extra rigid handle, or invisible lid is drawn.
  for(const side of[-1,1]){
-  const shoulder=[side<0?-.28:.20,-1.32],elbow=[side*.43,-1.29],wrist=[side*.45,-1.43];
+  const shoulder=[side*.26,-1.85],elbow=[side*(H.sideX-.02),-1.25],wrist=[side*H.sideX,-1.43];
   line(ctx,[shoulder,elbow,wrist],'#88665f',.142);
   line(ctx,[shoulder,elbow,wrist],gradient(ctx,side*.2,-1.45,side*.5,-1.18,[[0,'#eaa879'],[1,'#c77959']]),.113);
-  line(ctx,[[side*.35,-1.29],[side*.43,-1.32]],'#ffe0b18c',.015);
+  line(ctx,[[side*(H.sideX-.10),-1.29],[side*(H.sideX-.02),-1.32]],'#ffe0b18c',.015);
   const part=H.sideX*side;ctx.save();ctx.translate(part,H.y+H.sideY);ctx.rotate(side*H.sideAngle);
   const skin=gradient(ctx,-H.sideWidth/2,0,H.sideWidth/2,0,[[0,'#f9d4b1'],[.4,'#edbd99'],[1,'#c58e79']]);
   round(ctx,-H.sideWidth/2,-H.sideHeight/2,H.sideWidth,H.sideHeight,.035,skin,'#956d60');
@@ -122,15 +121,15 @@ function drawPlayer(ctx,cam,x){
  }
  // Stretched shirt fabric forms the bottom, not a plastic shopping bag.
  round(ctx,-H.width/2,H.y-H.thickness/2,H.width,H.thickness,.035,gradient(ctx,0,H.y-.07,0,H.y+.07,[[0,'#f3b28c'],[.35,'#d88868'],[1,'#ad6357']]),'#8a5c55');
- line(ctx,[[-.35,H.y+.025],[-.18,H.y+.045],[0,H.y+.028],[.18,H.y+.045],[.35,H.y+.025]],'#f6c2a5',.012);
+ line(ctx,[[-H.width*.44,H.y+.025],[-H.width*.22,H.y+.045],[0,H.y+.028],[H.width*.22,H.y+.045],[H.width*.44,H.y+.025]],'#f6c2a5',.012);
  ctx.restore();
 }
 function drawHolderFront(ctx,cam,x,glow=0){
  const H=BagPhysics.HOLDER,p=cam.toScreen(x,0);ctx.save();ctx.translate(p.x,p.y);ctx.scale(cam.scale,cam.scale);
  // A narrow lip and edge highlights sit in front of the load; never hide its body.
- line(ctx,[[-.39,H.y+.04],[0,H.y+.055],[.39,H.y+.04]],'#a96454',.034);
- line(ctx,[[-.36,H.y-.051],[.36,H.y-.051]],'#ffe0b6',.012);
- if(glow>0){ctx.globalAlpha=glow*.75;line(ctx,[[-.39,H.y-.07],[.39,H.y-.07]],'#fff7c9',.026);}
+ line(ctx,[[-H.width*.49,H.y+.04],[0,H.y+.055],[H.width*.49,H.y+.04]],'#a96454',.034);
+ line(ctx,[[-H.width*.45,H.y-.051],[H.width*.45,H.y-.051]],'#ffe0b6',.012);
+ if(glow>0){ctx.globalAlpha=glow*.75;line(ctx,[[-H.width*.49,H.y-.07],[H.width*.49,H.y-.07]],'#fff7c9',.026);}
  ctx.restore();
 }
 function drawShop(ctx,w,h,cam,time){

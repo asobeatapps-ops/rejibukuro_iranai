@@ -15,7 +15,7 @@ const game=new BagGame($('game'),{
 });new BagInput($('game'),game);
 function start(){BagAudio.unlock();BagAudio.play('click');hide('resultScreen',true);hide('titleScreen',true);hide('hud',false);hide('banner',true);game.start()}
 $('startBtn').addEventListener('click',start);$('retryBtn').addEventListener('click',start);$('homeBtn').addEventListener('click',()=>{BagAudio.stopMusic();game.state='title';game.physics.clear();game.effects.reset();hide('titleScreen',false);hide('resultScreen',true);hide('hud',true);hide('banner',true);syncBest()});
-function soundToggle(){profile=BagStorage.get();const next=!profile.sound;BagAudio.setEnabled(next);BagStorage.setSound(next);if(next){BagAudio.unlock();if(game.state==='play')BagAudio.startMusic();BagAudio.play('click')}else BagAudio.stopMusic();syncSound()}
+function soundToggle(){profile=BagStorage.get();const next=!profile.sound;BagAudio.setEnabled(next);BagStorage.setSound(next);if(next){BagAudio.unlock();if(['intro','play'].includes(game.state))BagAudio.startMusic();BagAudio.play('click')}else BagAudio.stopMusic();syncSound()}
 $('titleSound').addEventListener('click',soundToggle);$('soundHud').addEventListener('click',soundToggle);
 function modal(show){hide('nameModal',!show);if(show){$('playerName').value=BagStorage.get().name;$('playerName').focus()}}
 $('nameBtn').addEventListener('click',()=>modal(true));$('cancelName').addEventListener('click',()=>modal(false));$('saveName').addEventListener('click',()=>{BagStorage.setName($('playerName').value);modal(false)});$('playerName').addEventListener('keydown',e=>{if(e.key==='Enter'){BagStorage.setName(e.target.value);modal(false)}});syncSound();syncBest();renderRanks(profile.ranks);})();
