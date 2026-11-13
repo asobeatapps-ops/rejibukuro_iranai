@@ -73,3 +73,5 @@ node tests/game.test.cjs
 追加依存は不要です。物理7件＋ゲーム進行2件を実行できます。ブラウザ検証と未実施項目は `QA_REPORT.md` を参照してください。
 
 GitHub Pages用の成果物は `index.html`、`css/style.css`、`js/` 全体です。`js/art.js` の配置を忘れないでください。サーバービルドやAPI設定変更は不要です。
+
+公開更新時のキャッシュ対策として、変更したCSS/JSの参照には `?v=arm-basket-1` を付けています。ファイル名自体は変更していません。
