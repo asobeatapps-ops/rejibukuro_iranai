@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"/>
+<meta name="theme-color" content="#163b41"/><meta name="description" content="レジ袋いりません。スーパーの品物を両手で積み上げる物理アクションゲーム。"/>
+<title>レジ袋いりません。｜ASOBEAT</title>
+<link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+<div id="app">
+  <header id="hud" class="hud hidden" aria-live="off">
+    <div class="hud-left"><span class="hud-label">CATCH</span><span class="hud-number" id="scoreHud">00</span></div>
+    <div class="hud-mid"><span id="nextLabel">NEXT</span><span id="nextName">お菓子箱</span></div>
+    <button id="soundHud" class="icon-button" aria-label="音の切り替え" type="button">♪</button>
+  </header>
+  <canvas id="game" aria-label="商品を左右に移動して受け止めるゲーム"></canvas>
+  <div id="introSpeech" class="speech hidden" aria-live="polite"><span id="speakerName"></span><span id="speechText"></span></div>
+  <div id="tip" class="tip hidden">← 指を左右にスライド →</div>
+  <div id="banner" class="banner hidden" aria-live="polite"></div>
+  <section id="titleScreen" class="screen title-screen" aria-label="タイトル">
+    <div class="shop-brand">ASOBEAT PRESENTS <span class="brand-line"></span> SUPERMARKET PANIC</div>
+    <div class="title-art" aria-hidden="true"><div class="bag">NO<br/>BAG<span>✕</span></div><div class="pile">▣<b>▣</b><i>▣</i></div></div>
+    <h1>レジ袋<br/><em>いりません。</em></h1>
+    <p class="tagline">断ったその一言が、<br/>すべての始まりだった。</p>
+    <button id="startBtn" class="primary-button" type="button">買い物をはじめる <span>›</span></button>
+    <p class="instruction">左右にスワイプして商品をキャッチ。<br/>ひとつでも落としたら、即終了。</p>
+    <div class="title-bottom"><button id="titleSound" class="text-button" type="button">♪ SOUND ON</button><button id="nameBtn" class="text-button" type="button">PLAYER NAME</button></div>
+    <div class="best-mini">PERSONAL BEST <strong id="titleBest">0</strong></div>
+  </section>
+  <section id="resultScreen" class="screen result-screen hidden" aria-label="結果">
+    <div class="result-tag">CHECKOUT FAILED</div>
+    <h2>レジ袋、<br/>必要でした。</h2>
+    <p class="result-lead">今回受け止めた商品</p>
+    <div class="result-score"><strong id="resultScore">0</strong><span>個</span></div>
+    <div id="newBest" class="new-best hidden">★ NEW PERSONAL BEST ★</div>
+    <div class="result-ribbon"><span id="resultTitle">レジ袋、ください</span></div>
+    <div class="result-info"><span>BEST <strong id="resultBest">0</strong></span><span>PLAYER <strong id="resultPlayer">ゲスト</strong></span></div>
+    <div class="ranking" id="ranking"><div class="ranking-heading">LOCAL TOP 10</div><div id="rankingRows"></div></div>
+    <div class="result-actions"><button id="retryBtn" class="primary-button" type="button">もう一度、断る <span>↻</span></button><button id="homeBtn" class="secondary-button" type="button">タイトルへ</button></div>
+    <div class="ad-space" aria-label="広告掲載予定スペース"><span>ADVERTISEMENT</span><small>広告掲載準備中</small></div>
+  </section>
+  <div id="nameModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="nameHeading"><div class="modal-inner"><h2 id="nameHeading">プレイヤー名</h2><label for="playerName">ランキングに表示する名前</label><input id="playerName" maxlength="12" autocomplete="nickname" placeholder="ゲスト"/><div class="modal-actions"><button id="cancelName" type="button" class="secondary-button">戻る</button><button id="saveName" type="button" class="primary-button">保存</button></div></div></div>
+</div>
+<script src="js/storage.js" defer></script>
+<script src="js/audio.js" defer></script>
+<script src="js/physics.js" defer></script>
+<script src="js/effects.js" defer></script>
+<script src="js/game.js" defer></script>
+<script src="js/input.js" defer></script>
+<script src="js/main.js" defer></script>
+</body>
+</html>
