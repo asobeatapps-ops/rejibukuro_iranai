@@ -5,16 +5,17 @@ function award(score){return score===0?'レジ袋、ください':score<=3?'エ�
 function renderRanks(ranks){const container=$('rankingRows');container.replaceChildren();if(!ranks.length){let p=document.createElement('div');p.className='rank-row';p.textContent='まだ記録がありません';container.appendChild(p);return}ranks.forEach((r,i)=>{const row=document.createElement('div');row.className='rank-row';const a=document.createElement('span'),b=document.createElement('b');const rank=1+ranks.filter(k=>k.score>r.score).length;a.textContent=`${rank}. ${r.name}`;b.textContent=`${r.score} 個`;row.append(a,b);container.appendChild(row)})}
 const game=new BagGame($('game'),{
  onIntro(speaker,text){hide('introSpeech',!speaker);if(speaker){$('speakerName').textContent=speaker;$('speechText').textContent=text}},
+ onBombWarning(show){hide('bombWarning',!show)},
  onPlay(){hide('tip',false);setTimeout(()=>hide('tip',true),1700)},
  onNext(name){$('nextName').textContent=name},
  onThrow(name){$('nextLabel').textContent='NEXT';},
  onScore(n,name){$('scoreHud').textContent=String(n).padStart(2,'0');$('nextName').textContent=name;if(n>0){hide('banner',false);$('banner').textContent=`${n} CATCH!`;clearTimeout(flashTimeout);flashTimeout=setTimeout(()=>hide('banner',true),440)}},
  onGameOver(){hide('tip',true);hide('banner',false);$('banner').textContent='GAME OVER';clearTimeout(flashTimeout);flashTimeout=setTimeout(()=>hide('banner',true),900)},
  onError(msg){console.warn(msg)},
- onResult(score){latestScore=score;const r=BagStorage.record(score);if(r.best)BagAudio.play('best');hide('titleScreen',true);hide('hud',true);hide('resultScreen',false);$('resultScore').textContent=score;$('resultBest').textContent=r.data.best;$('resultTitle').textContent=award(score);$('resultPlayer').textContent=r.data.name;hide('newBest',!r.best);renderRanks(r.data.ranks);syncBest()}
+ onResult(score){latestScore=score;BagRanking.showResult(score,BagStorage.get().name);const r=BagStorage.record(score);if(r.best)BagAudio.play('best');hide('titleScreen',true);hide('hud',true);hide('resultScreen',false);$('resultScore').textContent=score;$('resultBest').textContent=r.data.best;$('resultTitle').textContent=award(score);$('resultPlayer').textContent=r.data.name;hide('newBest',!r.best);renderRanks(r.data.ranks);syncBest()}
 });new BagInput($('game'),game);
-function start(){BagAudio.unlock();BagAudio.play('click');hide('resultScreen',true);hide('titleScreen',true);hide('hud',false);hide('banner',true);game.start()}
-$('startBtn').addEventListener('click',start);$('retryBtn').addEventListener('click',start);$('homeBtn').addEventListener('click',()=>{BagAudio.stopMusic();game.state='title';game.physics.clear();game.effects.reset();hide('titleScreen',false);hide('resultScreen',true);hide('hud',true);hide('banner',true);syncBest()});
+function start(){hide('bombWarning',true);BagRanking.cancelView();BagAudio.unlock();BagAudio.play('click');hide('resultScreen',true);hide('titleScreen',true);hide('hud',false);hide('banner',true);game.start()}
+$('startBtn').addEventListener('click',start);$('retryBtn').addEventListener('click',start);$('homeBtn').addEventListener('click',()=>{BagAudio.stopMusic();BagRanking.cancelView();hide('bombWarning',true);game.state='title';game.physics.clear();game.effects.reset();hide('titleScreen',false);hide('resultScreen',true);hide('hud',true);hide('banner',true);syncBest()});
 function soundToggle(){profile=BagStorage.get();const next=!profile.sound;BagAudio.setEnabled(next);BagStorage.setSound(next);if(next){BagAudio.unlock();if(['intro','play'].includes(game.state))BagAudio.startMusic();BagAudio.play('click')}else BagAudio.stopMusic();syncSound()}
 $('titleSound').addEventListener('click',soundToggle);$('soundHud').addEventListener('click',soundToggle);
 function modal(show){hide('nameModal',!show);if(show){$('playerName').value=BagStorage.get().name;$('playerName').focus()}}

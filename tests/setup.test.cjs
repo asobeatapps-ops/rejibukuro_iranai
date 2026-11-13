@@ -1,0 +1,9 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),{execFileSync}=require('node:child_process');
+test('Mac setup script creates dedicated project config without exposing login credentials',()=>{const dir=fs.mkdtempSync(path.join(os.tmpdir(),'bagless-setup-'));try{fs.mkdirSync(path.join(dir,'scripts'));fs.mkdirSync(path.join(dir,'js'));fs.mkdirSync(path.join(dir,'bin'));for(const f of['firebase.json','firestore.rules','firestore.indexes.json','scripts/setup-ranking.sh'])fs.copyFileSync(path.join(__dirname,'..',f),path.join(dir,f));const fake=`#!/usr/bin/env node
+const fs=require('fs'),a=process.argv.slice(2),cmd=a[2];
+if(cmd==='projects:list')console.log(JSON.stringify({result:[]}));
+else if(cmd==='apps:list')console.log(JSON.stringify({result:[{appId:'1:1:web:test'}]}));
+else if(cmd==='firestore:databases:get')console.log(JSON.stringify({result:{databaseEdition:'STANDARD'}}));
+else if(cmd==='apps:sdkconfig')console.log(JSON.stringify({result:{sdkConfig:{apiKey:'public',projectId:'demo-bagless',appId:'1:1:web:test',authDomain:'demo-bagless.firebaseapp.com'}}}));
+else if(cmd==='deploy'){const c=JSON.parse(fs.readFileSync(a[a.indexOf('--config')+1]));if(c.firestore.edition!=='standard'||c.firestore.location!=='asia-northeast1')process.exit(2);if(!fs.existsSync(c.firestore.rules))process.exit(3)}
+`;fs.writeFileSync(path.join(dir,'bin/npx'),fake,{mode:0o755});const out=execFileSync('bash',['scripts/setup-ranking.sh','demo-bagless'],{cwd:dir,env:{...process.env,PATH:path.join(dir,'bin')+':'+process.env.PATH},encoding:'utf8'});const config=fs.readFileSync(path.join(dir,'js/ranking-config.js'),'utf8');assert.match(config,/demo-bagless/);assert.match(config,/Object.freeze/);assert.match(out,/SETUP COMPLETE/)}finally{fs.rmSync(dir,{recursive:true,force:true})}});
