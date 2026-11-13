@@ -4,7 +4,7 @@
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"/>
 <meta name="theme-color" content="#163b41"/><meta name="description" content="レジ袋いりません。スーパーの品物を両手で積み上げる物理アクションゲーム。"/>
 <title>レジ袋いりません。｜ASOBEAT</title>
-<link rel="stylesheet" href="css/style.css?v=stack-bomb-3"/>
+<link rel="stylesheet" href="css/style.css?v=auto-holder-5"/>
 </head>
 <body>
 <div id="app">
@@ -23,6 +23,7 @@
     <div class="title-art" aria-hidden="true"><div class="bag">NO<br/>BAG<span>✕</span></div><div class="pile">▣<b>▣</b><i>▣</i></div></div>
     <h1>レジ袋<br/><em>いりません。</em></h1>
     <p class="tagline">断ったその一言が、<br/>すべての始まりだった。</p>
+    <p class="ranking-consent">プレイ結果と名前はランキングに自動登録されます。<br/><a href="privacy.html" target="_blank" rel="noopener">データの取り扱い</a></p>
     <button id="startBtn" class="primary-button" type="button">買い物をはじめる <span>›</span></button>
     <p class="instruction">左右にスワイプして商品をキャッチ。<br/>ひとつでも落としたら、即終了。</p>
     <div class="title-bottom"><button id="titleSound" class="text-button" type="button">♪ SOUND ON</button><button id="nameBtn" class="text-button" type="button">PLAYER NAME</button></div>
@@ -39,9 +40,7 @@
     <div class="ranking" id="ranking"><div class="ranking-heading">LOCAL BEST</div><div id="rankingRows"></div></div>
     <div class="ranking online-ranking" aria-labelledby="onlineHeading">
       <div id="onlineHeading" class="ranking-heading">WORLD RANKING</div>
-      <p class="ranking-note">名前と記録を公開して、ほかのプレイヤーと競えます。<br/><a href="privacy.html" target="_blank" rel="noopener">データの取り扱い</a></p>
-      <button id="submitRanking" type="button" class="secondary-button">この記録をランキング登録</button>
-      <button id="refreshRanking" type="button" class="text-button">ランキングを更新</button>
+      <p class="ranking-note">プレイ後に名前とベスト記録を自動更新します。<br/><a href="privacy.html" target="_blank" rel="noopener">データの取り扱い</a></p>
       <p id="rankingStatus" role="status" aria-live="polite"></p><div id="onlineRows"></div>
     </div>
     <div class="result-actions"><button id="retryBtn" class="primary-button" type="button">もう一度、断る <span>↻</span></button><button id="homeBtn" class="secondary-button" type="button">タイトルへ</button></div>
@@ -51,13 +50,13 @@
 </div>
 <script src="js/storage.js?v=stack-bomb-3" defer></script>
 <script src="js/audio.js?v=stack-bomb-3" defer></script>
-<script src="js/physics.js?v=stack-bomb-3" defer></script>
+<script src="js/physics.js?v=auto-holder-5" defer></script>
 <script src="js/effects.js?v=stack-bomb-3" defer></script>
 <script src="js/art.js?v=stack-bomb-3" defer></script>
-<script src="js/game.js?v=stack-bomb-3" defer></script>
+<script src="js/game.js?v=auto-holder-5" defer></script>
 <script src="js/input.js?v=stack-bomb-3" defer></script>
 <script src="js/ranking-config.js?v=bagless-online-4" defer></script>
-<script src="js/ranking.js?v=stack-bomb-3" defer></script>
+<script src="js/ranking.js?v=auto-holder-5" defer></script>
 <script src="js/main.js?v=stack-bomb-3" defer></script>
 </body>
 </html>
