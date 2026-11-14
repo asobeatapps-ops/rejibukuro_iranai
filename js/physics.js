@@ -1,10 +1,10 @@
 (()=>{'use strict';
 // Deterministic fixed-step impulse solver for convex 2D bodies. Units: meters, seconds.
-const DT=1/120, GRAVITY=9.8, BOMB_GRAVITY_SCALE=.35, BOMB_MAX_FALL_SPEED=2.6, ITERS=12, SUBSTEPS=3, POSITION_ITERS=6, clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const DT=1/120, GRAVITY=9.8, GOODS_INITIAL_GRAVITY_SCALE=.4, GOODS_INITIAL_MAX_SPEED=2.8, BOMB_SPEED_MULTIPLIER=1.3, BOMB_GRAVITY_SCALE=.35*BOMB_SPEED_MULTIPLIER**2, BOMB_MAX_FALL_SPEED=2.6*BOMB_SPEED_MULTIPLIER, ITERS=12, SUBSTEPS=3, POSITION_ITERS=6, clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function makeShape(spec){const {kind,w,h}=spec;let pts;if(kind==='circle'){pts=Array.from({length:16},(_,i)=>{const a=i*Math.PI*2/16;return{x:Math.cos(a)*w/2,y:Math.sin(a)*h/2}})}else if(kind==='bottle'){pts=[[-.28,-.5],[.28,-.5],[.28,-.33],[.46,-.25],[.46,.48],[-.46,.48],[-.46,-.25],[-.28,-.33]].map(([x,y])=>({x:x*w,y:y*h}))}else if(kind==='bag'){pts=[[-.48,-.36],[-.3,-.49],[.32,-.49],[.48,-.34],[.5,.27],[.31,.49],[-.33,.49],[-.5,.28]].map(([x,y])=>({x:x*w,y:y*h}))}else if(kind==='chair'){pts=[[-.45,-.5],[-.1,-.5],[-.1,-.1],[.45,-.1],[.45,.48],[-.45,.48]].map(([x,y])=>({x:x*w,y:y*h}))}else{pts=[{x:-w/2,y:-h/2},{x:w/2,y:-h/2},{x:w/2,y:h/2},{x:-w/2,y:h/2}]};return pts}
 const cross=(a,b)=>a.x*b.y-a.y*b.x;const dot=(a,b)=>a.x*b.x+a.y*b.y;const sub=(a,b)=>({x:a.x-b.x,y:a.y-b.y});const norm=a=>{let l=Math.hypot(a.x,a.y)||1;return{x:a.x/l,y:a.y/l}};
 function polygonWorld(b){const c=Math.cos(b.angle),s=Math.sin(b.angle);return b.shape.map(v=>({x:b.x+v.x*c-v.y*s,y:b.y+v.x*s+v.y*c}))}
-function body(spec, x,y, mass, id){let shape=makeShape(spec),r=Math.hypot(spec.w,spec.h)/2;return{id,x,y,vx:0,vy:0,angle:0,omega:0,shape,r,w:spec.w,h:spec.h,mass,invMass:1/mass, inertia:mass*(spec.w**2+spec.h**2)/12,invInertia:12/(mass*(spec.w**2+spec.h**2)),static:false,restitution:0,friction:1.8,startedSupport:-1,catchDone:false,supported:false,supportCount:0,kind:spec.kind,tag:spec.tag}}
+function body(spec, x,y, mass, id){let shape=makeShape(spec),r=Math.hypot(spec.w,spec.h)/2;return{id,x,y,vx:0,vy:0,angle:0,omega:0,shape,r,w:spec.w,h:spec.h,mass,invMass:1/mass, inertia:mass*(spec.w**2+spec.h**2)/12,invInertia:12/(mass*(spec.w**2+spec.h**2)),static:false,restitution:0,friction:1.8,startedSupport:-1,catchDone:false,supported:false,supportCount:0,hasTouchedHolder:false,kind:spec.kind,tag:spec.tag}}
 function sat(a,b){
  const av=polygonWorld(a),bv=polygonWorld(b);let smallest=Infinity,best;
  for(const poly of[av,bv])for(let i=0;i<poly.length;i++){
@@ -39,6 +39,16 @@ function solveVelocity(c){
   c.tangent[i]=clamp(old-dot(relative(),t)/effective(t),-max,max);
   const jt=c.tangent[i]-old;apply(a,t.x*jt,t.y*jt,ra.x,ra.y,-1);apply(b,t.x*jt,t.y*jt,rb.x,rb.y,1);
  }
+}
+// Contact with held goods also counts as reaching the holder, so upper layers
+// do not remain in the slow initial-fall mode. This flag never awards a score.
+function markHolderContact(contacts){
+ let changed;
+ do{changed=false;for(const{a,b}of contacts){
+  if(a.isBomb||b.isBomb)continue;
+  if((a.isHolder||a.hasTouchedHolder)&&!b.static&&!b.hasTouchedHolder){b.hasTouchedHolder=true;changed=true}
+  if((b.isHolder||b.hasTouchedHolder)&&!a.static&&!a.hasTouchedHolder){a.hasTouchedHolder=true;changed=true}
+ }}while(changed);
 }
 function contactsFor(parts){
  const contacts=[];for(let i=0;i<parts.length;i++)for(let j=i+1;j<parts.length;j++){
@@ -117,7 +127,9 @@ class Physics{constructor(){this.items=[];this.bombs=[];this.bombId=0;this.onExp
   for(let step=0;step<SUBSTEPS;step++){
    this.time+=h;p.x=start+(end-start)*(step+1)/SUBSTEPS;p.vx=(end-start)/DT;this.syncHolder();
    for(const b of[...this.items,...this.bombs]){
-    b.vy+=GRAVITY*h*(b.isBomb?BOMB_GRAVITY_SCALE:1);if(b.isBomb)b.vy=Math.min(b.vy,BOMB_MAX_FALL_SPEED);b.vx*=Math.pow(.999,h/DT);b.vy*=Math.pow(.9995,h/DT);b.omega*=Math.pow(.996,h/DT);
+    const gravityScale=b.isBomb?BOMB_GRAVITY_SCALE:(b.hasTouchedHolder?2:GOODS_INITIAL_GRAVITY_SCALE);
+    b.vy+=GRAVITY*h*gravityScale;
+    if(b.isBomb)b.vy=Math.min(b.vy,BOMB_MAX_FALL_SPEED);else if(!b.hasTouchedHolder)b.vy=Math.min(b.vy,GOODS_INITIAL_MAX_SPEED);b.vx*=Math.pow(.999,h/DT);b.vy*=Math.pow(.9995,h/DT);b.omega*=Math.pow(.996,h/DT);
     b.x+=b.vx*h;b.y+=b.vy*h;b.angle+=b.omega*h;
     if(!Number.isFinite(b.x+b.y+b.angle+b.vx+b.vy+b.omega)||Math.abs(b.x)>1e4||Math.abs(b.y)>1e4){if(b.isBomb){b.fuseAt=this.time;continue}this.floorHit={id:b.id,reason:'invalid'};return}
     const bottom=Math.max(...polygonWorld(b).map(v=>v.y));
@@ -127,6 +139,7 @@ class Physics{constructor(){this.items=[];this.bombs=[];this.bombId=0;this.onExp
     }
    }
    const all=[...this.holderParts,...this.items,...this.bombs],contacts=contactsFor(all);
+   markHolderContact(contacts);
    for(const c of contacts){
     const{a,b,n}=c;
     for(const bomb of[a,b])if(bomb.isBomb)this.armBomb(bomb);

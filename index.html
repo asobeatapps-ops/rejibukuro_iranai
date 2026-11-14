@@ -4,7 +4,7 @@
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"/>
 <meta name="theme-color" content="#163b41"/><meta name="description" content="レジ袋いりません。スーパーの品物を両手で積み上げる物理アクションゲーム。"/>
 <title>レジ袋いりません。｜ASOBEAT</title>
-<link rel="stylesheet" href="css/style.css?v=fixed-goods-6"/>
+<link rel="stylesheet" href="css/style.css?v=fall-home-7"/>
 </head>
 <body>
 <div id="app">
@@ -19,6 +19,7 @@
   <div id="tip" class="tip hidden">← 指を左右にスライド →</div>
   <div id="banner" class="banner hidden" aria-live="polite"></div>
   <section id="titleScreen" class="screen title-screen" aria-label="タイトル">
+    <a class="game-home-link title-home" href="https://asobeatapps-ops.github.io/gamehome/">← ゲームホーム</a>
     <div class="shop-brand">ASOBEAT PRESENTS <span class="brand-line"></span> SUPERMARKET PANIC</div>
     <div class="title-art" aria-hidden="true"><div class="bag">NO<br/>BAG<span>✕</span></div><canvas id="titleGoods" class="title-goods" width="290" height="220"></canvas></div>
     <h1>レジ袋<br/><em>いりません。</em></h1>
@@ -44,13 +45,13 @@
       <p class="ranking-note">プレイ後に名前とベスト記録を自動更新します。<br/><a href="privacy.html" target="_blank" rel="noopener">データの取り扱い</a></p>
       <p id="rankingStatus" role="status" aria-live="polite"></p><div id="onlineRows"></div>
     </div>
-    <div class="result-actions"><button id="retryBtn" class="primary-button" type="button">もう一度、断る <span>↻</span></button><button id="homeBtn" class="secondary-button" type="button">タイトルへ</button><a id="shareX" class="secondary-button share-x" href="https://x.com/intent/tweet" target="_blank" rel="noopener noreferrer">𝕏で結果を共有</a></div>
+    <div class="result-actions"><button id="retryBtn" class="primary-button" type="button">もう一度、断る <span>↻</span></button><button id="homeBtn" class="secondary-button" type="button">タイトルへ</button><a id="gameHomeResult" class="secondary-button game-home-link" href="https://asobeatapps-ops.github.io/gamehome/">ゲームホームへ</a><a id="shareX" class="secondary-button share-x" href="https://x.com/intent/tweet" target="_blank" rel="noopener noreferrer">𝕏で結果を共有</a></div>
     <div class="ad-space" aria-label="広告掲載予定スペース"><span>ADVERTISEMENT</span><small>広告掲載準備中</small></div>
   </section>
 </div>
 <script src="js/storage.js?v=fixed-goods-6" defer></script>
 <script src="js/audio.js?v=stack-bomb-3" defer></script>
-<script src="js/physics.js?v=fixed-goods-6" defer></script>
+<script src="js/physics.js?v=fall-home-7" defer></script>
 <script src="js/effects.js?v=stack-bomb-3" defer></script>
 <script src="js/art.js?v=stack-bomb-3" defer></script>
 <script src="js/game.js?v=fixed-goods-6" defer></script>
